@@ -69,6 +69,17 @@ services:
       timeout: 5s
       retries: 10
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: always
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:6333/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
 
 volumes:
   traefik_data:
@@ -76,3 +87,4 @@ volumes:
   n8n_data:
     external: true
   pg_data:
+  qdrant_storage:
