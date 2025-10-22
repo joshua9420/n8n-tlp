@@ -49,7 +49,6 @@ services:
       - NODE_ENV=production
       - WEBHOOK_URL=https://${SUBDOMAIN}.${DOMAIN_NAME}/
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
-      - TZ=America/Los_Angeles
     volumes:
       - n8n_data:/home/node/.n8n
       - /local-files:/files
@@ -61,6 +60,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-n8n}
       - POSTGRES_USER=${POSTGRES_USER:-n8n}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-n8npassword}
+      - TZ=America/Los_Angeles
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
