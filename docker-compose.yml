@@ -80,6 +80,53 @@ services:
       timeout: 5s
       retries: 10
 
+  lightrag:
+    image: python:3.11-slim
+    restart: always
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    environment:
+      # --- Server core (matches env.example shape) ---
+      - HOST=0.0.0.0
+      - PORT=9621
+      - WORKING_DIR=/app/data
+      - LIGHTRAG_API_KEY=${LIGHTRAG_API_KEY}
+      - LOG_LEVEL=${LIGHTRAG_LOG_LEVEL:-INFO}
+      - MAX_ASYNC=${LIGHTRAG_MAX_ASYNC:-4}
+      - MAX_TOKENS=${LIGHTRAG_MAX_TOKENS:-8192}
+
+      # --- Backend selection (pick ONE family & set its keys) ---
+      - LLM_BINDING=${LLM_BINDING:-openai}
+      - EMBEDDING_BINDING=${EMBEDDING_BINDING:-openai}
+
+      # OpenAI / compatible (default)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # - OPENAI_API_BASE=${OPENAI_API_BASE:-https://api.openai.com/v1}
+      # - OPENAI_API_TYPE=${OPENAI_API_TYPE:-openai}
+
+      # --- Vector storage (we use Qdrant) ---
+      - QDRANT_URL=http://qdrant:6333
+      # Optional workspace-style var LightRAG mentions:
+      # - QDRANT_WORKSPACE=${QDRANT_WORKSPACE:-/app/data/rag_storage}
+
+    command: >
+      bash -lc "
+      pip install --no-cache-dir 'lightrag-hku[api]' &&
+      exec lightrag-server
+      "
+    volumes:
+      - lightrag_data:/app/data
+    expose:
+      - "9621"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.lightrag.rule=Host(`${LR_SUBDOMAIN}.${DOMAIN_NAME}`)
+      - traefik.http.routers.lightrag.tls=true
+      - traefik.http.routers.lightrag.entrypoints=web,websecure
+      - traefik.http.routers.lightrag.tls.certresolver=mytlschallenge
+      - traefik.http.services.lightrag.loadbalancer.server.port=9621
+
 
 volumes:
   traefik_data:
@@ -88,3 +135,4 @@ volumes:
     external: true
   pg_data:
   qdrant_storage:
+  lightrag_data:
