@@ -82,28 +82,35 @@ services:
       qdrant:
         condition: service_started
     environment:
-      # --- Server core (matches env.example shape) ---
+      # --- Server / runtime ---
       - HOST=0.0.0.0
       - PORT=9621
       - WORKING_DIR=/app/data
+      - LOG_LEVEL=${LIGHTRAG_LOG_LEVEL}
       - LIGHTRAG_API_KEY=${LIGHTRAG_API_KEY}
-      - LOG_LEVEL=${LIGHTRAG_LOG_LEVEL:-INFO}
-      - MAX_ASYNC=${LIGHTRAG_MAX_ASYNC:-4}
-      - MAX_TOKENS=${LIGHTRAG_MAX_TOKENS:-8192}
+      - MAX_ASYNC=${LIGHTRAG_MAX_ASYNC}
+      - MAX_TOKENS=${LIGHTRAG_MAX_TOKENS}
+      - MAX_PARALLEL_INSERT=${MAX_PARALLEL_INSERT}
+      - EMBEDDING_FUNC_MAX_ASYNC=${EMBEDDING_FUNC_MAX_ASYNC}
+      - EMBEDDING_BATCH_NUM=${EMBEDDING_BATCH_NUM}
 
-      # --- Backend selection (pick ONE family & set its keys) ---
-      - LLM_BINDING=${LLM_BINDING:-openai}
-      - EMBEDDING_BINDING=${EMBEDDING_BINDING:-openai}
+      # --- Model backends: OpenAI only (per your .env) ---
+      - LLM_BINDING=${LLM_BINDING}
+      - LLM_MODEL=${LLM_MODEL}
+      - LLM_BINDING_HOST=${LLM_BINDING_HOST}
+      - LLM_BINDING_API_KEY=${LLM_BINDING_API_KEY}
 
-      # OpenAI / compatible (default)
+      - EMBEDDING_BINDING=${EMBEDDING_BINDING}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL}
+      - EMBEDDING_DIM=${EMBEDDING_DIM}
+      - EMBEDDING_BINDING_HOST=${EMBEDDING_BINDING_HOST}
+      - EMBEDDING_BINDING_API_KEY=${EMBEDDING_BINDING_API_KEY}
+
+      # (kept for compatibility if the server also checks OPENAI_API_KEY)
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      # - OPENAI_API_BASE=${OPENAI_API_BASE:-https://api.openai.com/v1}
-      # - OPENAI_API_TYPE=${OPENAI_API_TYPE:-openai}
 
-      # --- Vector storage (we use Qdrant) ---
+      # --- Vector store (Qdrant in the compose network) ---
       - QDRANT_URL=http://qdrant:6333
-      # Optional workspace-style var LightRAG mentions:
-      # - QDRANT_WORKSPACE=${QDRANT_WORKSPACE:-/app/data/rag_storage}
 
     command: >
       bash -lc "
@@ -112,8 +119,12 @@ services:
       "
     volumes:
       - lightrag_data:/app/data
-    expose:
-      - "9621"
+
+    # Keep it private to the VPS; access via SSH tunnel to http://localhost:9621
+    ports:
+      - "127.0.0.1:9621:9621"
+
+    # Traefik labels (inactive until you add DNS)
     labels:
       - traefik.enable=true
       - traefik.http.routers.lightrag.rule=Host(`${LR_SUBDOMAIN}.${DOMAIN_NAME}`)
@@ -121,8 +132,7 @@ services:
       - traefik.http.routers.lightrag.entrypoints=web,websecure
       - traefik.http.routers.lightrag.tls.certresolver=mytlschallenge
       - traefik.http.services.lightrag.loadbalancer.server.port=9621
-    ports:
-      - "127.0.0.1:9621:9621"
+
 
 
 volumes:
