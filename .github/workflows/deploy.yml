@@ -21,14 +21,29 @@ jobs:
           source: "."
           target: "~/apps/stack"
 
-      - name: SSH into VPS and deploy
+      - name: SSH deploy
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -e
             cd ~/apps/stack
+
+            # Ensure external volumes exist (safe if already there)
+            docker volume inspect traefik_data >/dev/null 2>&1 || docker volume create traefik_data
+            docker volume inspect n8n_data >/dev/null 2>&1 || docker volume create n8n_data
+
+            # Bring the compose project down first to free ports
+            docker compose down --remove-orphans || true
+
+            # Pull updated images and (re)build any local Dockerfiles
             docker compose pull
+            docker compose build || true
+
+            # Bring it back up
             docker compose up -d
 
+            # Optional: clean dangling images
+            docker image prune -f || true
