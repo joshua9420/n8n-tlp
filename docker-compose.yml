@@ -121,6 +121,8 @@ services:
       - traefik.http.routers.lightrag.entrypoints=web,websecure
       - traefik.http.routers.lightrag.tls.certresolver=mytlschallenge
       - traefik.http.services.lightrag.loadbalancer.server.port=9621
+    ports:
+      - "127.0.0.1:9621:9621"
 
 
 volumes:
