@@ -85,7 +85,7 @@ services:
     restart: always
     depends_on:
       qdrant:
-        condition: service_healthy
+        condition: service_started
     environment:
       # --- Server core (matches env.example shape) ---
       - HOST=0.0.0.0
