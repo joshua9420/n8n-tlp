@@ -74,11 +74,6 @@ services:
     restart: always
     volumes:
       - qdrant_storage:/qdrant/storage
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:6333/healthz"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
   lightrag:
     image: python:3.11-slim
