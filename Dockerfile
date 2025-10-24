@@ -1,5 +1,7 @@
 FROM docker.n8n.io/n8nio/n8n
 
+USER root
+
 # Install system dependencies for Puppeteer (headless Chrome) on Alpine
 RUN apk add --no-cache \
     chromium \
