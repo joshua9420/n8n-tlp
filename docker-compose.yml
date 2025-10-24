@@ -52,6 +52,9 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n
       - /local-files:/files
+    build:
+      context: .
+      dockerfile: Dockerfile
 
   postgres:
     image: postgres:16
