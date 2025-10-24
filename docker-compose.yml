@@ -24,7 +24,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   n8n:
-    image: docker.n8n.io/n8nio/n8n
+    # image: docker.n8n.io/n8nio/n8n
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: always
     labels:
       - traefik.enable=true
@@ -52,9 +55,7 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n
       - /local-files:/files
-    build:
-      context: .
-      dockerfile: Dockerfile
+
 
   postgres:
     image: postgres:16
