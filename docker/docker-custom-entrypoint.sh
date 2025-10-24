@@ -25,7 +25,14 @@ print_banner() {
     fi
 
     echo "Puppeteer executable path: $PUPPETEER_EXECUTABLE_PATH"
-    echo "Chrome arguments: $PUPPETEER_ARGS"
+    
+    # Test Chrome startup
+    echo "Testing Chrome startup..."
+    if timeout 10 "$PUPPETEER_EXECUTABLE_PATH" --headless --disable-gpu --dump-dom --virtual-time-budget=1000 "data:text/html,<html><body>test</body></html>" > /dev/null 2>&1; then
+        echo "Chrome test: SUCCESS"
+    else
+        echo "Chrome test: FAILED - Chrome may not start properly"
+    fi
     echo "----------------------------------------"
 }
 

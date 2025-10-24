@@ -33,15 +33,30 @@ RUN echo '#!/bin/sh' > /usr/bin/chromium-wrapper && \
     --disable-setuid-sandbox \
     --disable-dev-shm-usage \
     --disable-gpu \
-    --no-first-run \
-    --no-zygote \
-    --single-process \
-    --disable-extensions \
+    --disable-software-rasterizer \
     --disable-background-timer-throttling \
-    --disable-renderer-backgrounding \
     --disable-backgrounding-occluded-windows \
+    --disable-renderer-backgrounding \
+    --disable-features=TranslateUI \
+    --disable-ipc-flooding-protection \
+    --disable-default-apps \
+    --disable-extensions \
+    --disable-sync \
+    --disable-translate \
+    --hide-scrollbars \
+    --mute-audio \
+    --no-first-run \
+    --safebrowsing-disable-auto-update \
+    --ignore-certificate-errors \
+    --ignore-ssl-errors \
+    --ignore-certificate-errors-spki-list \
+    --user-data-dir=/tmp/chromium-user-data \
     "$@"' >> /usr/bin/chromium-wrapper && \
     chmod +x /usr/bin/chromium-wrapper
+
+# Create Chrome user data directory with proper permissions
+RUN mkdir -p /tmp/chromium-user-data && \
+    chmod 777 /tmp/chromium-user-data
 
 # Copy our custom entrypoint
 COPY docker/docker-custom-entrypoint.sh /docker-custom-entrypoint.sh
