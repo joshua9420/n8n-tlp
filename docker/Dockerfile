@@ -20,6 +20,9 @@ RUN apk add --no-cache \
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
+# Chrome/Chromium flags for Docker environment
+ENV PUPPETEER_ARGS="--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--no-first-run,--no-zygote,--single-process,--disable-extensions"
+
 # Install n8n-nodes-puppeteer in a permanent location
 RUN mkdir -p /opt/n8n-custom-nodes && \
     cd /opt/n8n-custom-nodes && \
