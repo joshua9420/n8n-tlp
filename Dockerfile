@@ -25,6 +25,5 @@ RUN apt-get update && apt-get install -y \
 
 # Install n8n community Puppeteer node (as user node, not root)
 USER node
-RUN npm install -g n8n-nodes-puppeteer
-
+RUN npm install --location=global n8n-nodes-puppeteer
 USER root
