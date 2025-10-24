@@ -27,7 +27,7 @@ services:
     # image: docker.n8n.io/n8nio/n8n
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/Dockerfile
     restart: always
     labels:
       - traefik.enable=true
