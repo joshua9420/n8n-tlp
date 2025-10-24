@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 # Install n8n community Puppeteer node (as user node, not root)
-USER root
+USER node
 RUN npm install -g n8n-nodes-puppeteer
 
-USER node
+USER root
