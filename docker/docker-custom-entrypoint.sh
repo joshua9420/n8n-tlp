@@ -25,6 +25,7 @@ print_banner() {
     fi
 
     echo "Puppeteer executable path: $PUPPETEER_EXECUTABLE_PATH"
+    echo "Chrome arguments: $PUPPETEER_ARGS"
     echo "----------------------------------------"
 }
 
@@ -34,6 +35,10 @@ if [ -n "$N8N_CUSTOM_EXTENSIONS" ]; then
 else
     export N8N_CUSTOM_EXTENSIONS="/opt/n8n-custom-nodes"
 fi
+
+# Set Chrome/Chromium arguments for Docker environment
+export CHROME_DEVEL_SANDBOX=/proc/self/ns/pid
+export PUPPETEER_LAUNCH_ARGS='["--no-sandbox","--disable-setuid-sandbox","--disable-dev-shm-usage","--disable-gpu","--no-first-run","--no-zygote","--single-process","--disable-extensions"]'
 
 print_banner
 

@@ -29,6 +29,9 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     restart: always
+    security_opt:
+      - seccomp:unconfined
+    shm_size: 2gb
     labels:
       - traefik.enable=true
       - traefik.http.routers.n8n.rule=Host(`${SUBDOMAIN}.${DOMAIN_NAME}`)
@@ -54,7 +57,6 @@ services:
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
       - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=${PUPPETEER_SKIP_CHROMIUM_DOWNLOAD}
       - PUPPETEER_EXECUTABLE_PATH=${PUPPETEER_EXECUTABLE_PATH}
-      - PUPPETEER_ARGS=${PUPPETEER_ARGS}
     volumes:
       - n8n_data:/home/node/.n8n
       - /local-files:/files
