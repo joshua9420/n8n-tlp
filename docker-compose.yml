@@ -85,6 +85,8 @@ services:
     restart: always
     volumes:
       - qdrant_storage:/qdrant/storage
+    ports:
+      - "6333:6333"
 
   lightrag:
     image: python:3.11-slim
