@@ -133,11 +133,11 @@ services:
     volumes:
       - lightrag_data:/app/data
 
-    # Keep it private to the VPS; access via SSH tunnel to http://localhost:9621
-    ports:
-      - "127.0.0.1:9621:9621"
+    # Expose to internet via Traefik (no direct port binding needed)
+    # ports:
+    #   - "127.0.0.1:9621:9621"
 
-    # Traefik labels (inactive until you add DNS)
+    # Traefik labels for internet access with authentication
     labels:
       - traefik.enable=true
       - traefik.http.routers.lightrag.rule=Host(`${LR_SUBDOMAIN}.${DOMAIN_NAME}`)
@@ -145,6 +145,9 @@ services:
       - traefik.http.routers.lightrag.entrypoints=web,websecure
       - traefik.http.routers.lightrag.tls.certresolver=mytlschallenge
       - traefik.http.services.lightrag.loadbalancer.server.port=9621
+      # Basic Authentication
+      - traefik.http.routers.lightrag.middlewares=lightrag-auth
+      - traefik.http.middlewares.lightrag-auth.basicauth.users=${RAG_USERNAME}:${RAG_PASSWORD_HASH}
 
 
 
