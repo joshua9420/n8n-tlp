@@ -146,8 +146,8 @@ services:
       - traefik.http.routers.lightrag.tls.certresolver=mytlschallenge
       - traefik.http.services.lightrag.loadbalancer.server.port=9621
       # Basic Authentication
-      - traefik.http.routers.lightrag.middlewares=lightrag-auth
-      - traefik.http.middlewares.lightrag-auth.basicauth.users=${RAG_USERNAME}:${RAG_PASSWORD_HASH}
+      # - traefik.http.routers.lightrag.middlewares=lightrag-auth
+      # - traefik.http.middlewares.lightrag-auth.basicauth.users=${RAG_PASSWORD_HASH}
 
 
 
