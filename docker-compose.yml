@@ -149,6 +149,48 @@ services:
       # - traefik.http.routers.lightrag.middlewares=lightrag-auth
       # - traefik.http.middlewares.lightrag-auth.basicauth.users=${RAG_PASSWORD_HASH}
 
+  streamlit:
+    image: python:3.11-slim
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      lightrag:
+        condition: service_started
+    environment:
+      # Database connection
+      - POSTGRES_DB=${POSTGRES_DB:-n8n}
+      - POSTGRES_USER=${POSTGRES_USER:-n8n}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-n8npassword}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      
+      # LightRAG connection
+      - LIGHTRAG_URL=http://lightrag:9621
+      - LIGHTRAG_API_KEY=${LIGHTRAG_API_KEY}
+      
+      # App configuration
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      
+    volumes:
+      - ./streamlit:/app
+    command: >
+      bash -lc "
+      cd /app &&
+      pip install --no-cache-dir -r requirements.txt &&
+      exec streamlit run app.py
+      "
+    
+    # Traefik labels for public access
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.streamlit.rule=Host(`${CHAT_SUBDOMAIN}.${DOMAIN_NAME}`)
+      - traefik.http.routers.streamlit.tls=true
+      - traefik.http.routers.streamlit.entrypoints=web,websecure
+      - traefik.http.routers.streamlit.tls.certresolver=mytlschallenge
+      - traefik.http.services.streamlit.loadbalancer.server.port=8501
+
 
 
 volumes:
