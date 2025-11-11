@@ -135,12 +135,19 @@ class ControllerAgentChat(ChatInterface):
         try:
             url = "https://n8n.srv1075445.hstgr.cloud/webhook/financial-controller-chatbot"
             
+            print(f"\n{'='*80}")
+            print(f"[CONTROLLER CHAT] Starting request to n8n webhook")
+            print(f"[CONTROLLER CHAT] URL: {url}")
+            print(f"[CONTROLLER CHAT] User Query: {query[:100]}...")
+            
             # Basic authentication
             username = "admin"
             password = "tlp123"
             auth_string = f"{username}:{password}"
             auth_bytes = auth_string.encode('utf-8')
             auth_b64 = base64.b64encode(auth_bytes).decode('utf-8')
+            
+            print(f"[CONTROLLER CHAT] Auth configured: Basic {auth_b64[:20]}...")
             
             headers = {
                 "Content-Type": "application/json",
@@ -193,40 +200,140 @@ class ControllerAgentChat(ChatInterface):
                 "timestamp": datetime.now().isoformat()
             }
             
+            print(f"[CONTROLLER CHAT] Payload prepared:")
+            print(f"  - Message length: {len(query)} chars")
+            print(f"  - Conversation history: {len(context_messages)} messages")
+            print(f"  - Chatbot type: financial_controller")
+            
             # Make the POST request to n8n webhook
+            print(f"[CONTROLLER CHAT] Sending POST request...")
             response = requests.post(url, headers=headers, json=payload, timeout=45)
             
+            print(f"[CONTROLLER CHAT] Response received:")
+            print(f"  - Status Code: {response.status_code}")
+            print(f"  - Response Headers: {dict(response.headers)}")
+            print(f"  - Content-Type: {response.headers.get('Content-Type', 'Not specified')}")
+            print(f"  - Response Length: {len(response.text)} chars")
+            print(f"  - Response Text (first 1000 chars): {response.text[:1000]}")
+            
             if response.status_code == 200:
-                result = response.json()
+                # Check if response is empty
+                if not response.text or response.text.strip() == '':
+                    print(f"[CONTROLLER CHAT] ERROR: Empty response body")
+                    print(f"{'='*80}\n")
+                    return "❌ n8n webhook returned empty response. Please check your workflow configuration."
+                
+                # Check content type
+                content_type = response.headers.get('Content-Type', '')
+                
+                # Try to parse JSON first
+                try:
+                    result = response.json()
+                    print(f"[CONTROLLER CHAT] Successfully parsed JSON response")
+                except json.JSONDecodeError as je:
+                    print(f"[CONTROLLER CHAT] Response is not JSON, treating as plain text")
+                    print(f"  - JSON Error: {str(je)}")
+                    print(f"  - Content-Type: {content_type}")
+                    print(f"  - Returning plain text response")
+                    print(f"{'='*80}\n")
+                    # Return the plain text response directly
+                    return response.text.strip()
+                
+                print(f"[CONTROLLER CHAT] Parsing JSON response:")
+                print(f"  - Successfully parsed JSON")
+                print(f"  - Type: {type(result)}")
+                print(f"  - Is List: {isinstance(result, list)}")
+                if isinstance(result, list):
+                    print(f"  - List Length: {len(result)}")
+                    if len(result) > 0:
+                        print(f"  - First Item Type: {type(result[0])}")
+                        print(f"  - First Item: {result[0]}")
+                
                 # Handle n8n webhook response format
-                if isinstance(result, dict):
-                    # Try different possible response fields from n8n
-                    return (result.get('response') or 
+                # n8n can return an array of objects or a single object
+                if isinstance(result, list) and len(result) > 0:
+                    print(f"[CONTROLLER CHAT] Processing array response...")
+                    # If it's an array, get the first item
+                    first_item = result[0]
+                    if isinstance(first_item, dict):
+                        # Try different possible response fields
+                        extracted_response = (first_item.get('output') or 
+                               first_item.get('response') or 
+                               first_item.get('answer') or 
+                               first_item.get('message') or 
+                               first_item.get('result') or
+                               'No response received from n8n workflow')
+                        print(f"[CONTROLLER CHAT] Extracted response (first 200 chars): {str(extracted_response)[:200]}")
+                        print(f"{'='*80}\n")
+                        return extracted_response
+                    else:
+                        print(f"[CONTROLLER CHAT] First item is not a dict, converting to string")
+                        print(f"{'='*80}\n")
+                        return str(first_item)
+                elif isinstance(result, dict):
+                    print(f"[CONTROLLER CHAT] Processing dict response...")
+                    # If it's a single object, try different possible response fields
+                    extracted_response = (result.get('output') or
+                           result.get('response') or 
                            result.get('answer') or 
                            result.get('message') or 
-                           result.get('output') or 
                            result.get('result') or
                            'No response received from n8n workflow')
+                    print(f"[CONTROLLER CHAT] Extracted response (first 200 chars): {str(extracted_response)[:200]}")
+                    print(f"{'='*80}\n")
+                    return extracted_response
                 else:
+                    print(f"[CONTROLLER CHAT] Unknown response format, converting to string")
+                    print(f"{'='*80}\n")
                     return str(result)
             elif response.status_code == 401:
+                print(f"[CONTROLLER CHAT] ERROR: Authentication failed (401)")
+                print(f"{'='*80}\n")
                 return "🔐 Authentication failed with n8n webhook."
             elif response.status_code == 404:
+                print(f"[CONTROLLER CHAT] ERROR: Webhook not found (404)")
+                print(f"{'='*80}\n")
                 return "🔍 n8n webhook not found. Please check the webhook URL configuration."
             elif response.status_code == 500:
+                print(f"[CONTROLLER CHAT] ERROR: Server error (500)")
+                print(f"  - Response: {response.text[:200]}")
+                print(f"{'='*80}\n")
                 return "⚠️ n8n workflow is experiencing issues. Please try again later."
             else:
+                print(f"[CONTROLLER CHAT] ERROR: Unexpected status code {response.status_code}")
+                print(f"  - Response: {response.text[:200]}")
+                print(f"{'='*80}\n")
                 return f"❌ n8n Webhook Error: Status {response.status_code} - {response.text[:200]}"
                 
-        except requests.exceptions.ConnectionError:
+        except json.JSONDecodeError as e:
+            print(f"[CONTROLLER CHAT] ERROR: JSON decode error (in exception handler)")
+            print(f"  - Error: {str(e)}")
+            print(f"  - Response text: {response.text[:1000] if 'response' in locals() else 'N/A'}")
+            print(f"  - Response status: {response.status_code if 'response' in locals() else 'N/A'}")
+            print(f"{'='*80}\n")
+            return f"� Invalid JSON from n8n. Response: {response.text[:200] if 'response' in locals() else 'N/A'}"
+        except requests.exceptions.ConnectionError as e:
+            print(f"[CONTROLLER CHAT] ERROR: Connection error")
+            print(f"  - Error: {str(e)}")
+            print(f"{'='*80}\n")
             return "🔌 Cannot connect to n8n webhook. Please check if n8n is running and accessible."
-        except requests.exceptions.Timeout:
+        except requests.exceptions.Timeout as e:
+            print(f"[CONTROLLER CHAT] ERROR: Request timeout")
+            print(f"  - Error: {str(e)}")
+            print(f"{'='*80}\n")
             return "⏱️ Request timed out. The n8n workflow might be processing a complex request."
         except requests.exceptions.RequestException as e:
+            print(f"[CONTROLLER CHAT] ERROR: Request exception")
+            print(f"  - Error: {str(e)}")
+            print(f"{'='*80}\n")
             return f"🌐 Network error connecting to n8n: {str(e)}"
-        except json.JSONDecodeError:
-            return "📄 Invalid response format from n8n workflow."
         except Exception as e:
+            print(f"[CONTROLLER CHAT] ERROR: Unexpected exception")
+            print(f"  - Type: {type(e).__name__}")
+            print(f"  - Error: {str(e)}")
+            import traceback
+            print(f"  - Traceback:\n{traceback.format_exc()}")
+            print(f"{'='*80}\n")
             return f"💥 Unexpected error: {str(e)}"
     
     def display_chat_interface(self):
