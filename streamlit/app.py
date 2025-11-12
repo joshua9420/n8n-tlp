@@ -19,12 +19,11 @@ auth.require_auth()
 if auth.is_authenticated():
     # Sidebar with user info and navigation
     with st.sidebar:
-        st.write(f"� Welcome, **{auth.get_username()}**!")
+        st.write(f"👋 **{auth.get_username()}**")
         st.divider()
         
-        st.write("**Available Chatbots:**")
-        st.write("• 👨‍💼 Ian Cruz")
-        st.write("• 🤖 Controller Agent")
+        st.write("**Available Chatbot:**")
+        st.write("• � Financial Controller")
         
         st.divider()
         
@@ -33,20 +32,15 @@ if auth.is_authenticated():
     
     # Main content area
     st.title("🚀 Chat Hub")
-    st.write("Welcome to your personal chat hub! Choose a chatbot from the sidebar to get started.")
+    st.write("Welcome to your Financial Controller chat assistant.")
     
-    # Chatbot cards
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.subheader("👨‍💼 Chat with Ian Cruz")
-        st.write("Personal assistant and knowledge expert ready to help with various topics and questions.")
-        st.page_link("pages/1_Ian_Cruz.py", label="Start Chat with Ian", icon="💬")
+    # Single chatbot card - centered
+    col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        st.subheader("🤖 Controller Agent")
-        st.write("System controller and automation assistant specialized in technical assistance and system management.")
-        st.page_link("pages/2_Controller_Agent.py", label="Start Chat with Controller", icon="💬")
+        st.subheader("� Financial Controller")
+        st.write("Financial analysis and planning expert specialized in budgeting, cash flow management, and strategic financial decision-making.")
+        st.page_link("pages/2_Controller_Agent.py", label="Start Chat with Financial Controller", icon="💬", use_container_width=True)
     
     st.divider()
     
@@ -63,9 +57,9 @@ if auth.is_authenticated():
         with col2:
             st.write("**Connected Services:**")
             st.write(f"• Database: {settings.POSTGRES_DB}")
-            st.write(f"• LightRAG: {settings.LIGHTRAG_URL}")
-            st.write(f"• Available Chatbots: {len(settings.CHATBOTS)}")
+            st.write(f"• n8n Webhook: Configured")
+            st.write(f"• Available Chatbots: 1")
     
     # Footer
     st.markdown("---")
-    st.markdown("*Built with Streamlit • Powered by LightRAG*")
+    st.markdown("*Built with Streamlit • Powered by n8n*")

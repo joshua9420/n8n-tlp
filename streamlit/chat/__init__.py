@@ -1,4 +1,4 @@
 # Chat package
-from .chat_interface import ChatInterface, IanCruzChat, ControllerAgentChat
+from .chat_interface import ChatInterface, ControllerAgentChat
 
-__all__ = ['ChatInterface', 'IanCruzChat', 'ControllerAgentChat']
+__all__ = ['ChatInterface', 'ControllerAgentChat']

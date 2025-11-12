@@ -40,13 +40,8 @@ if auth.is_authenticated():
         st.divider()
         
         # Compact navigation
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("🏠 Hub", use_container_width=True):
-                st.switch_page("app.py")
-        with col2:
-            if st.button("👨‍💼 Ian", use_container_width=True):
-                st.switch_page("pages/1_Ian_Cruz.py")
+        if st.button("🏠 Back to Hub", use_container_width=True):
+            st.switch_page("app.py")
         
         if st.button("🚪 Logout", use_container_width=True, type="secondary"):
             auth.logout()

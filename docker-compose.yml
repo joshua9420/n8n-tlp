@@ -88,75 +88,12 @@ services:
     ports:
       - "6333:6333"
 
-  lightrag:
-    image: python:3.11-slim
-    restart: always
-    depends_on:
-      qdrant:
-        condition: service_started
-    environment:
-      # --- Server / runtime ---
-      - HOST=0.0.0.0
-      - PORT=9621
-      - WORKING_DIR=/app/data
-      - LOG_LEVEL=${LIGHTRAG_LOG_LEVEL}
-      - LIGHTRAG_API_KEY=${LIGHTRAG_API_KEY}
-      - MAX_ASYNC=${LIGHTRAG_MAX_ASYNC}
-      - MAX_TOKENS=${LIGHTRAG_MAX_TOKENS}
-      - MAX_PARALLEL_INSERT=${MAX_PARALLEL_INSERT}
-      - EMBEDDING_FUNC_MAX_ASYNC=${EMBEDDING_FUNC_MAX_ASYNC}
-      - EMBEDDING_BATCH_NUM=${EMBEDDING_BATCH_NUM}
-
-      # --- Model backends: OpenAI only (per your .env) ---
-      - LLM_BINDING=${LLM_BINDING}
-      - LLM_MODEL=${LLM_MODEL}
-      - LLM_BINDING_HOST=${LLM_BINDING_HOST}
-      - LLM_BINDING_API_KEY=${LLM_BINDING_API_KEY}
-
-      - EMBEDDING_BINDING=${EMBEDDING_BINDING}
-      - EMBEDDING_MODEL=${EMBEDDING_MODEL}
-      - EMBEDDING_DIM=${EMBEDDING_DIM}
-      - EMBEDDING_BINDING_HOST=${EMBEDDING_BINDING_HOST}
-      - EMBEDDING_BINDING_API_KEY=${EMBEDDING_BINDING_API_KEY}
-
-      # (kept for compatibility if the server also checks OPENAI_API_KEY)
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-
-      # --- Vector store (Qdrant in the compose network) ---
-      - QDRANT_URL=http://qdrant:6333
-
-    command: >
-      bash -lc "
-      pip install --no-cache-dir 'lightrag-hku[api]' &&
-      exec lightrag-server
-      "
-    volumes:
-      - lightrag_data:/app/data
-
-    # Expose to internet via Traefik (no direct port binding needed)
-    # ports:
-    #   - "127.0.0.1:9621:9621"
-
-    # Traefik labels for internet access with authentication
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.lightrag.rule=Host(`${LR_SUBDOMAIN}.${DOMAIN_NAME}`)
-      - traefik.http.routers.lightrag.tls=true
-      - traefik.http.routers.lightrag.entrypoints=web,websecure
-      - traefik.http.routers.lightrag.tls.certresolver=mytlschallenge
-      - traefik.http.services.lightrag.loadbalancer.server.port=9621
-      # Basic Authentication
-      # - traefik.http.routers.lightrag.middlewares=lightrag-auth
-      # - traefik.http.middlewares.lightrag-auth.basicauth.users=${RAG_PASSWORD_HASH}
-
   streamlit:
     image: python:3.11-slim
     restart: always
     depends_on:
       postgres:
         condition: service_healthy
-      lightrag:
-        condition: service_started
     environment:
       # Database connection
       - POSTGRES_DB=${POSTGRES_DB:-n8n}
@@ -164,10 +101,6 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-n8npassword}
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
-      
-      # LightRAG connection
-      - LIGHTRAG_URL=http://lightrag:9621
-      - LIGHTRAG_API_KEY=${LIGHTRAG_API_KEY}
       
       # App configuration
       - STREAMLIT_SERVER_PORT=8501
@@ -200,4 +133,3 @@ volumes:
     external: true
   pg_data:
   qdrant_storage:
-  lightrag_data:
