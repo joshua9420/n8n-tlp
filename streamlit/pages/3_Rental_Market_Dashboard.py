@@ -265,8 +265,8 @@ with tab1:
                     if zip_metrics:
                         df_zip = pd.DataFrame(zip_metrics)
                         
-                        # Format for display
-                        df_display = df_zip.copy()
+                        # Format for display - reorder columns to prioritize median
+                        df_display = df_zip[['zip_code', 'total_listings', 'median_dom', 'avg_dom', 'median_rent', 'avg_rent', 'avg_price_per_sqft']].copy()
                         df_display['total_listings'] = df_display['total_listings'].astype(int)
                         df_display['median_dom'] = df_display['median_dom'].apply(lambda x: f"{safe_float(x):.1f}")
                         df_display['avg_dom'] = df_display['avg_dom'].apply(lambda x: f"{safe_float(x):.1f}")
