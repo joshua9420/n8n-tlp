@@ -22,8 +22,9 @@ if auth.is_authenticated():
         st.write(f"👋 **{auth.get_username()}**")
         st.divider()
         
-        st.write("**Available Chatbot:**")
-        st.write("• � Financial Controller")
+        st.write("**Available Features:**")
+        st.write("• 💰 Financial Controller")
+        st.write("• 📊 Rental Market Dashboard")
         
         st.divider()
         
@@ -32,15 +33,20 @@ if auth.is_authenticated():
     
     # Main content area
     st.title("🚀 Chat Hub")
-    st.write("Welcome to your Financial Controller chat assistant.")
+    st.write("Welcome to your Financial Controller chat assistant and Rental Market Dashboard.")
     
-    # Single chatbot card - centered
-    col1, col2, col3 = st.columns([1, 2, 1])
+    # Application cards
+    col1, col2 = st.columns(2)
     
-    with col2:
-        st.subheader("� Financial Controller")
+    with col1:
+        st.subheader("💰 Financial Controller")
         st.write("Financial analysis and planning expert specialized in budgeting, cash flow management, and strategic financial decision-making.")
         st.page_link("pages/2_Controller_Agent.py", label="Start Chat with Financial Controller", icon="💬", use_container_width=True)
+    
+    with col2:
+        st.subheader("📊 Rental Market Dashboard")
+        st.write("Real-time analytics and insights from Zillow rental data. Track market trends, compare ZIP codes, and analyze property listings.")
+        st.page_link("pages/3_Rental_Market_Dashboard.py", label="Open Rental Market Dashboard", icon="📈", use_container_width=True)
     
     st.divider()
     
@@ -58,7 +64,7 @@ if auth.is_authenticated():
             st.write("**Connected Services:**")
             st.write(f"• Database: {settings.POSTGRES_DB}")
             st.write(f"• n8n Webhook: Configured")
-            st.write(f"• Available Chatbots: 1")
+            st.write(f"• Available Features: 2")
     
     # Footer
     st.markdown("---")
