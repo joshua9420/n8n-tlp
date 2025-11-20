@@ -114,13 +114,13 @@ with tab1:
                 st.caption(f"📍 {safe_int(summary_data.get('active_zips', 0))} ZIP codes")
             
             with col2:
-                avg_dom = safe_float(summary_data.get('avg_dom', 0))
-                st.metric(
-                    "Avg Days on Market", 
-                    f"{avg_dom:.1f} days"
-                )
                 median_dom = safe_float(summary_data.get('median_dom', 0))
-                st.caption(f"Median: {median_dom:.1f} days")
+                st.metric(
+                    "Median Days on Market", 
+                    f"{median_dom:.1f} days"
+                )
+                avg_dom = safe_float(summary_data.get('avg_dom', 0))
+                st.caption(f"Average: {avg_dom:.1f} days")
             
             with col3:
                 median_rent = safe_float(summary_data.get('median_rent', 0))
@@ -268,25 +268,25 @@ with tab1:
                         # Format for display
                         df_display = df_zip.copy()
                         df_display['total_listings'] = df_display['total_listings'].astype(int)
-                        df_display['avg_dom'] = df_display['avg_dom'].apply(lambda x: f"{safe_float(x):.1f}")
                         df_display['median_dom'] = df_display['median_dom'].apply(lambda x: f"{safe_float(x):.1f}")
+                        df_display['avg_dom'] = df_display['avg_dom'].apply(lambda x: f"{safe_float(x):.1f}")
                         df_display['median_rent'] = df_display['median_rent'].apply(lambda x: f"${safe_float(x):,.0f}")
                         df_display['avg_rent'] = df_display['avg_rent'].apply(lambda x: f"${safe_float(x):,.0f}")
                         df_display['avg_price_per_sqft'] = df_display['avg_price_per_sqft'].apply(lambda x: f"${safe_float(x):.2f}")
                         
-                        df_display.columns = ['ZIP Code', 'Total Listings', 'Avg DOM', 'Median DOM', 'Median Rent', 'Avg Rent', 'Avg $/sqft']
+                        df_display.columns = ['ZIP Code', 'Total Listings', 'Median DOM', 'Avg DOM', 'Median Rent', 'Avg Rent', 'Avg $/sqft']
                         st.dataframe(df_display, use_container_width=True, hide_index=True)
                         
                         # Charts
                         col1, col2 = st.columns(2)
                         
                         with col1:
-                            st.subheader("Average Days on Market")
+                            st.subheader("Median Days on Market")
                             chart = alt.Chart(df_zip).mark_bar().encode(
                                 x=alt.X('zip_code:N', title='ZIP Code'),
-                                y=alt.Y('avg_dom:Q', title='Avg DOM'),
+                                y=alt.Y('median_dom:Q', title='Median DOM'),
                                 color=alt.Color('zip_code:N', legend=None),
-                                tooltip=['zip_code', alt.Tooltip('avg_dom:Q', format='.1f')]
+                                tooltip=['zip_code', alt.Tooltip('median_dom:Q', format='.1f')]
                             ).properties(height=300)
                             st.altair_chart(chart, use_container_width=True)
                         
@@ -447,8 +447,9 @@ with tab1:
                 ].copy()
                 
                 if not df_map.empty:
-                    # Rename columns for st.map
-                    df_map = df_map.rename(columns={'latitude': 'lat', 'longitude': 'lon'})
+                    # Convert Decimal to float for map display
+                    df_map['lat'] = df_map['latitude'].astype(float)
+                    df_map['lon'] = df_map['longitude'].astype(float)
                     st.map(df_map[['lat', 'lon']], zoom=11)
                 else:
                     st.info("No properties with coordinates available for map display")
