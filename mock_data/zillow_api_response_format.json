@@ -1,0 +1,198 @@
+{
+    "type": "object",
+    "properties": {
+        "results": {
+            "type": "array",
+            "items": {
+                "required": [
+                    "bathrooms",
+                    "bedrooms",
+                    "city",
+                    "country",
+                    "currency",
+                    "daysOnZillow",
+                    "homeStatus",
+                    "homeStatusForHDP",
+                    "homeType",
+                    "imgSrc",
+                    "isFeatured",
+                    "isNonOwnerOccupied",
+                    "isPreforeclosureAuction",
+                    "isPremierBuilder",
+                    "isShowcaseListing",
+                    "isUnmappable",
+                    "isZillowOwned",
+                    "latitude",
+                    "listing_sub_type",
+                    "livingArea",
+                    "longitude",
+                    "price",
+                    "priceForHDP",
+                    "shouldHighlight",
+                    "state",
+                    "streetAddress",
+                    "timeOnZillow",
+                    "zipcode",
+                    "zpid"
+                ],
+                "type": "object",
+                "properties": {
+                    "bathrooms": {
+                        "type": "integer"
+                    },
+                    "bedrooms": {
+                        "type": "integer"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "daysOnZillow": {
+                        "type": "integer"
+                    },
+                    "homeStatus": {
+                        "type": "string"
+                    },
+                    "homeStatusForHDP": {
+                        "type": "string"
+                    },
+                    "homeType": {
+                        "type": "string"
+                    },
+                    "imgSrc": {
+                        "type": "string"
+                    },
+                    "isFeatured": {
+                        "type": "boolean"
+                    },
+                    "isNonOwnerOccupied": {
+                        "type": "boolean"
+                    },
+                    "isPreforeclosureAuction": {
+                        "type": "boolean"
+                    },
+                    "isPremierBuilder": {
+                        "type": "boolean"
+                    },
+                    "isShowcaseListing": {
+                        "type": "boolean"
+                    },
+                    "isUnmappable": {
+                        "type": "boolean"
+                    },
+                    "isZillowOwned": {
+                        "type": "boolean"
+                    },
+                    "latitude": {
+                        "type": "number"
+                    },
+                    "listing_sub_type": {
+                        "type": "object",
+                        "properties": {
+                            "is_FSBA": {
+                                "type": "boolean"
+                            },
+                            "is_openHouse": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "livingArea": {
+                        "type": "integer"
+                    },
+                    "longitude": {
+                        "type": "number"
+                    },
+                    "openHouse": {
+                        "type": "string"
+                    },
+                    "open_house_info": {
+                        "type": "object",
+                        "properties": {
+                            "open_house_showing": {
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "open_house_end",
+                                        "open_house_start"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "open_house_end": {
+                                            "type": "integer"
+                                        },
+                                        "open_house_start": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "price": {
+                        "type": "integer"
+                    },
+                    "priceForHDP": {
+                        "type": "integer"
+                    },
+                    "rentZestimate": {
+                        "type": "integer"
+                    },
+                    "shouldHighlight": {
+                        "type": "boolean"
+                    },
+                    "state": {
+                        "type": "string"
+                    },
+                    "streetAddress": {
+                        "type": "string"
+                    },
+                    "taxAssessedValue": {
+                        "type": "integer"
+                    },
+                    "timeOnZillow": {
+                        "type": "integer"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "zestimate": {
+                        "type": "integer"
+                    },
+                    "zipcode": {
+                        "type": "string"
+                    },
+                    "zpid": {
+                        "type": "integer"
+                    },
+                    "datePriceChanged": {
+                        "type": "integer"
+                    },
+                    "priceChange": {
+                        "type": "integer"
+                    },
+                    "priceReduction": {
+                        "type": "string"
+                    },
+                    "videoCount": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "resultsPerPage": {
+            "type": "integer"
+        },
+        "totalPages": {
+            "type": "integer"
+        },
+        "totalResultCount": {
+            "type": "integer"
+        }
+    }
+}
