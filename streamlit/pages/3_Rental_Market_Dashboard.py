@@ -251,6 +251,7 @@ with tab1:
                             zip_code,
                             COUNT(*) as total_listings,
                             AVG(CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END) as avg_dom,
+                            PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END) as median_dom,
                             PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price) as median_rent,
                             AVG(price) as avg_rent,
                             AVG(CASE WHEN living_area > 0 THEN price::NUMERIC / living_area ELSE NULL END) as avg_price_per_sqft
@@ -268,11 +269,12 @@ with tab1:
                         df_display = df_zip.copy()
                         df_display['total_listings'] = df_display['total_listings'].astype(int)
                         df_display['avg_dom'] = df_display['avg_dom'].apply(lambda x: f"{safe_float(x):.1f}")
+                        df_display['median_dom'] = df_display['median_dom'].apply(lambda x: f"{safe_float(x):.1f}")
                         df_display['median_rent'] = df_display['median_rent'].apply(lambda x: f"${safe_float(x):,.0f}")
                         df_display['avg_rent'] = df_display['avg_rent'].apply(lambda x: f"${safe_float(x):,.0f}")
                         df_display['avg_price_per_sqft'] = df_display['avg_price_per_sqft'].apply(lambda x: f"${safe_float(x):.2f}")
                         
-                        df_display.columns = ['ZIP Code', 'Total Listings', 'Avg DOM', 'Median Rent', 'Avg Rent', 'Avg $/sqft']
+                        df_display.columns = ['ZIP Code', 'Total Listings', 'Avg DOM', 'Median DOM', 'Median Rent', 'Avg Rent', 'Avg $/sqft']
                         st.dataframe(df_display, use_container_width=True, hide_index=True)
                         
                         # Charts
