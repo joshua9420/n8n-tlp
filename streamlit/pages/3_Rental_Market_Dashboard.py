@@ -90,8 +90,8 @@ with tab1:
             SELECT 
                 COUNT(*) as total_listings,
                 COUNT(DISTINCT zip_code) as active_zips,
-                AVG(days_on_zillow) as avg_dom,
-                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY days_on_zillow) as median_dom,
+                AVG(CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END) as avg_dom,
+                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END) as median_dom,
                 AVG(price) as avg_rent,
                 PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price) as median_rent,
                 MIN(price) as min_rent,
@@ -250,7 +250,7 @@ with tab1:
                         SELECT 
                             zip_code,
                             COUNT(*) as total_listings,
-                            AVG(days_on_zillow) as avg_dom,
+                            AVG(CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END) as avg_dom,
                             PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price) as median_rent,
                             AVG(price) as avg_rent,
                             AVG(CASE WHEN living_area > 0 THEN price::NUMERIC / living_area ELSE NULL END) as avg_price_per_sqft
@@ -390,7 +390,7 @@ with tab1:
                     home_type,
                     home_status,
                     price,
-                    days_on_zillow,
+                    CASE WHEN time_on_zillow > 0 THEN ROUND((time_on_zillow::NUMERIC / 86400000)::NUMERIC, 0) ELSE NULL END as days_on_zillow,
                     latitude,
                     longitude,
                     CASE WHEN living_area > 0 THEN ROUND((price::NUMERIC / living_area)::NUMERIC, 2) ELSE NULL END as price_per_sqft
@@ -401,7 +401,7 @@ with tab1:
                     AND home_status = ANY(%s)
                     AND price >= %s
                     AND price <= %s
-                ORDER BY days_on_zillow ASC
+                ORDER BY CASE WHEN time_on_zillow > 0 THEN time_on_zillow ELSE NULL END ASC NULLS LAST
                 LIMIT 100
             """
             
