@@ -65,11 +65,11 @@ SELECT
     AVG(CASE WHEN living_area > 0 THEN price::NUMERIC / living_area ELSE NULL END)::NUMERIC(10,2) AS average_price_per_sqft,
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN living_area > 0 THEN price::NUMERIC / living_area ELSE NULL END)::NUMERIC(10,2) AS median_price_per_sqft,
     
-    -- Days on market
-    AVG(days_on_zillow)::NUMERIC(8,2) AS average_days_on_market,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY days_on_zillow)::NUMERIC(8,2) AS median_days_on_market,
-    MIN(days_on_zillow) AS min_days_on_market,
-    MAX(days_on_zillow) AS max_days_on_market,
+    -- Days on market (convert time_on_zillow from seconds to days)
+    AVG(CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END)::NUMERIC(8,2) AS average_days_on_market,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END)::NUMERIC(8,2) AS median_days_on_market,
+    MIN(CASE WHEN time_on_zillow > 0 THEN time_on_zillow / 86400000 ELSE NULL END) AS min_days_on_market,
+    MAX(CASE WHEN time_on_zillow > 0 THEN time_on_zillow / 86400000 ELSE NULL END) AS max_days_on_market,
     
     -- Area metrics
     AVG(living_area)::NUMERIC(10,2) AS average_area_sqft,
@@ -164,11 +164,11 @@ SELECT
     AVG(CASE WHEN living_area > 0 THEN price::NUMERIC / living_area ELSE NULL END)::NUMERIC(10,2) AS average_price_per_sqft,
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN living_area > 0 THEN price::NUMERIC / living_area ELSE NULL END)::NUMERIC(10,2) AS median_price_per_sqft,
     
-    -- Days on market
-    AVG(days_on_zillow)::NUMERIC(8,2) AS average_days_on_market,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY days_on_zillow)::NUMERIC(8,2) AS median_days_on_market,
-    MIN(days_on_zillow) AS min_days_on_market,
-    MAX(days_on_zillow) AS max_days_on_market,
+    -- Days on market (convert time_on_zillow from seconds to days)
+    AVG(CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END)::NUMERIC(8,2) AS average_days_on_market,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END)::NUMERIC(8,2) AS median_days_on_market,
+    MIN(CASE WHEN time_on_zillow > 0 THEN time_on_zillow / 86400000 ELSE NULL END) AS min_days_on_market,
+    MAX(CASE WHEN time_on_zillow > 0 THEN time_on_zillow / 86400000 ELSE NULL END) AS max_days_on_market,
     
     -- Area metrics
     AVG(living_area)::NUMERIC(10,2) AS average_area_sqft,
@@ -263,11 +263,11 @@ SELECT
     AVG(CASE WHEN living_area > 0 THEN price::NUMERIC / living_area ELSE NULL END)::NUMERIC(10,2) AS average_price_per_sqft,
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN living_area > 0 THEN price::NUMERIC / living_area ELSE NULL END)::NUMERIC(10,2) AS median_price_per_sqft,
     
-    -- Days on market
-    AVG(days_on_zillow)::NUMERIC(8,2) AS average_days_on_market,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY days_on_zillow)::NUMERIC(8,2) AS median_days_on_market,
-    MIN(days_on_zillow) AS min_days_on_market,
-    MAX(days_on_zillow) AS max_days_on_market,
+    -- Days on market (convert time_on_zillow from seconds to days)
+    AVG(CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END)::NUMERIC(8,2) AS average_days_on_market,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END)::NUMERIC(8,2) AS median_days_on_market,
+    MIN(CASE WHEN time_on_zillow > 0 THEN time_on_zillow / 86400000 ELSE NULL END) AS min_days_on_market,
+    MAX(CASE WHEN time_on_zillow > 0 THEN time_on_zillow / 86400000 ELSE NULL END) AS max_days_on_market,
     
     -- Area metrics
     AVG(living_area)::NUMERIC(10,2) AS average_area_sqft,
@@ -362,11 +362,11 @@ SELECT
     AVG(CASE WHEN living_area > 0 THEN price::NUMERIC / living_area ELSE NULL END)::NUMERIC(10,2) AS average_price_per_sqft,
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN living_area > 0 THEN price::NUMERIC / living_area ELSE NULL END)::NUMERIC(10,2) AS median_price_per_sqft,
     
-    -- Days on market
-    AVG(days_on_zillow)::NUMERIC(8,2) AS average_days_on_market,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY days_on_zillow)::NUMERIC(8,2) AS median_days_on_market,
-    MIN(days_on_zillow) AS min_days_on_market,
-    MAX(days_on_zillow) AS max_days_on_market,
+    -- Days on market (convert time_on_zillow from seconds to days)
+    AVG(CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END)::NUMERIC(8,2) AS average_days_on_market,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END)::NUMERIC(8,2) AS median_days_on_market,
+    MIN(CASE WHEN time_on_zillow > 0 THEN time_on_zillow / 86400000 ELSE NULL END) AS min_days_on_market,
+    MAX(CASE WHEN time_on_zillow > 0 THEN time_on_zillow / 86400000 ELSE NULL END) AS max_days_on_market,
     
     -- Area metrics
     AVG(living_area)::NUMERIC(10,2) AS average_area_sqft,
@@ -461,11 +461,11 @@ SELECT
     AVG(CASE WHEN living_area > 0 THEN price::NUMERIC / living_area ELSE NULL END)::NUMERIC(10,2) AS average_price_per_sqft,
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN living_area > 0 THEN price::NUMERIC / living_area ELSE NULL END)::NUMERIC(10,2) AS median_price_per_sqft,
     
-    -- Days on market
-    AVG(days_on_zillow)::NUMERIC(8,2) AS average_days_on_market,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY days_on_zillow)::NUMERIC(8,2) AS median_days_on_market,
-    MIN(days_on_zillow) AS min_days_on_market,
-    MAX(days_on_zillow) AS max_days_on_market,
+    -- Days on market (convert time_on_zillow from seconds to days)
+    AVG(CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END)::NUMERIC(8,2) AS average_days_on_market,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN time_on_zillow > 0 THEN time_on_zillow::NUMERIC / 86400000 ELSE NULL END)::NUMERIC(8,2) AS median_days_on_market,
+    MIN(CASE WHEN time_on_zillow > 0 THEN time_on_zillow / 86400000 ELSE NULL END) AS min_days_on_market,
+    MAX(CASE WHEN time_on_zillow > 0 THEN time_on_zillow / 86400000 ELSE NULL END) AS max_days_on_market,
     
     -- Area metrics
     AVG(living_area)::NUMERIC(10,2) AS average_area_sqft,

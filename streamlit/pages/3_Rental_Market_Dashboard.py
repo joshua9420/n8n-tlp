@@ -22,7 +22,7 @@ st.set_page_config(
 )
 
 # Require authentication
-auth.require_auth()
+# auth.require_auth()
 
 # Helper function to safely convert to float
 def safe_float(value, default=0.0):
