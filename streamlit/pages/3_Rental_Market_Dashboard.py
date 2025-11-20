@@ -11,7 +11,6 @@ from datetime import datetime, timedelta
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from auth import auth
 from db import database
 
 # Page configuration
@@ -20,9 +19,6 @@ st.set_page_config(
     page_icon="📊",
     layout="wide"
 )
-
-# Require authentication
-# auth.require_auth()
 
 # Helper function to safely convert to float
 def safe_float(value, default=0.0):
@@ -40,188 +36,181 @@ def safe_int(value, default=0):
     except (ValueError, TypeError):
         return default
 
+# Sidebar
+# Sidebar
+with st.sidebar:
+    st.markdown("**📊 Rental Market Dashboard**")
+    st.caption("Zillow data analytics for Cincinnati")
+    
+    st.divider()
+    
+    # Test database connection
+    try:
+        if database.test_connection():
+            st.success("🟢 Database Connected")
+        else:
+            st.error("🔴 Database Disconnected")
+    except Exception as e:
+        st.error(f"🔴 DB Error: {str(e)[:50]}")
+    
+    st.divider()
+    
+    # Navigation
+    if st.button("🏠 Back to Hub", use_container_width=True):
+        st.switch_page("app.py")
+
 # Main content
-if auth.is_authenticated():
-    # Sidebar
-    with st.sidebar:
-        st.write(f"👋 **{auth.get_username()}**")
-        st.divider()
-        
-        st.markdown("**📊 Rental Market Dashboard**")
-        st.caption("Zillow data analytics for Cincinnati")
-        
-        st.divider()
-        
-        # Test database connection
-        try:
-            if database.test_connection():
-                st.success("🟢 Database Connected")
-            else:
-                st.error("🔴 Database Disconnected")
-        except Exception as e:
-            st.error(f"🔴 DB Error: {str(e)[:50]}")
-        
-        st.divider()
-        
-        # Navigation
-        if st.button("🏠 Back to Hub", use_container_width=True):
-            st.switch_page("app.py")
-        
-        if st.button("🚪 Logout", use_container_width=True, type="secondary"):
-            auth.logout()
+st.title("📊 Rental Market Dashboard")
+st.caption("Real-time insights from Zillow rental data")
+
+# Create tabs
+tab1, tab2, tab3, tab4 = st.tabs([
+    "📈 Market Overview",
+    "🗺️ ZIP Code Analysis", 
+    "🏠 Property Listings",
+    "📊 Metrics Trends"
+])
+
+# ============================================================
+# TAB 1: MARKET OVERVIEW
+# ============================================================
+with tab1:
+    st.header("Market Overview")
     
-    # Main content
-    st.title("📊 Rental Market Dashboard")
-    st.caption("Real-time insights from Zillow rental data")
-    
-    # Create tabs
-    tab1, tab2, tab3, tab4 = st.tabs([
-        "📈 Market Overview",
-        "🗺️ ZIP Code Analysis", 
-        "🏠 Property Listings",
-        "📊 Metrics Trends"
-    ])
-    
-    # ============================================================
-    # TAB 1: MARKET OVERVIEW
-    # ============================================================
-    with tab1:
-        st.header("Market Overview")
+    try:
+        # Fetch summary statistics
+        summary_query = """
+            SELECT 
+                COUNT(*) as total_listings,
+                COUNT(DISTINCT zip_code) as active_zips,
+                AVG(days_on_zillow) as avg_dom,
+                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY days_on_zillow) as median_dom,
+                AVG(price) as avg_rent,
+                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price) as median_rent,
+                MIN(price) as min_rent,
+                MAX(price) as max_rent,
+                COUNT(*) FILTER (WHERE home_status = 'FOR_RENT') as for_rent_count,
+                COUNT(*) FILTER (WHERE home_status = 'FOR_SALE') as for_sale_count
+            FROM zillow_listings
+        """
+        summary_data = database.fetch_one(summary_query)
         
-        try:
-            # Fetch summary statistics
-            summary_query = """
-                SELECT 
-                    COUNT(*) as total_listings,
-                    COUNT(DISTINCT zip_code) as active_zips,
-                    AVG(days_on_zillow) as avg_dom,
-                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY days_on_zillow) as median_dom,
-                    AVG(price) as avg_rent,
-                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price) as median_rent,
-                    MIN(price) as min_rent,
-                    MAX(price) as max_rent,
-                    COUNT(*) FILTER (WHERE home_status = 'FOR_RENT') as for_rent_count,
-                    COUNT(*) FILTER (WHERE home_status = 'FOR_SALE') as for_sale_count
-                FROM zillow_listings
-            """
-            summary_data = database.fetch_one(summary_query)
+        if summary_data:
+            # KPI Cards
+            col1, col2, col3, col4 = st.columns(4)
             
-            if summary_data:
-                # KPI Cards
-                col1, col2, col3, col4 = st.columns(4)
-                
-                with col1:
-                    st.metric(
-                        "Total Listings", 
-                        f"{safe_int(summary_data.get('total_listings', 0)):,}"
-                    )
-                    st.caption(f"📍 {safe_int(summary_data.get('active_zips', 0))} ZIP codes")
-                
-                with col2:
-                    avg_dom = safe_float(summary_data.get('avg_dom', 0))
-                    st.metric(
-                        "Avg Days on Market", 
-                        f"{avg_dom:.1f} days"
-                    )
-                    median_dom = safe_float(summary_data.get('median_dom', 0))
-                    st.caption(f"Median: {median_dom:.1f} days")
-                
-                with col3:
-                    median_rent = safe_float(summary_data.get('median_rent', 0))
-                    st.metric(
-                        "Median Rent", 
-                        f"${median_rent:,.0f}"
-                    )
-                    avg_rent = safe_float(summary_data.get('avg_rent', 0))
-                    st.caption(f"Average: ${avg_rent:,.0f}")
-                
-                with col4:
-                    for_rent = safe_int(summary_data.get('for_rent_count', 0))
-                    for_sale = safe_int(summary_data.get('for_sale_count', 0))
-                    st.metric(
-                        "For Rent", 
-                        f"{for_rent:,}"
-                    )
-                    st.caption(f"For Sale: {for_sale:,}")
-                
-                st.divider()
-                
-                # Distribution charts
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    st.subheader("Listings by Property Type")
-                    type_query = """
-                        SELECT home_type, COUNT(*) as count
-                        FROM zillow_listings
-                        WHERE home_type IS NOT NULL
-                        GROUP BY home_type
-                        ORDER BY count DESC
-                    """
-                    type_data = database.fetch_data(type_query)
-                    
-                    if type_data:
-                        df_type = pd.DataFrame(type_data)
-                        chart = alt.Chart(df_type).mark_bar().encode(
-                            x=alt.X('count:Q', title='Count'),
-                            y=alt.Y('home_type:N', sort='-x', title='Property Type'),
-                            color=alt.Color('home_type:N', legend=None),
-                            tooltip=['home_type', 'count']
-                        ).properties(height=300)
-                        st.altair_chart(chart, use_container_width=True)
-                    else:
-                        st.info("No property type data available")
-                
-                with col2:
-                    st.subheader("Listings by Bedrooms")
-                    bed_query = """
-                        SELECT bedrooms, COUNT(*) as count
-                        FROM zillow_listings
-                        WHERE bedrooms IS NOT NULL
-                        GROUP BY bedrooms
-                        ORDER BY bedrooms
-                    """
-                    bed_data = database.fetch_data(bed_query)
-                    
-                    if bed_data:
-                        df_bed = pd.DataFrame(bed_data)
-                        chart = alt.Chart(df_bed).mark_bar().encode(
-                            x=alt.X('bedrooms:O', title='Bedrooms'),
-                            y=alt.Y('count:Q', title='Count'),
-                            color=alt.Color('bedrooms:O', legend=None),
-                            tooltip=['bedrooms', 'count']
-                        ).properties(height=300)
-                        st.altair_chart(chart, use_container_width=True)
-                    else:
-                        st.info("No bedroom data available")
-                
-                # Status distribution
-                st.subheader("Listings by Status")
-                status_query = """
-                    SELECT home_status, COUNT(*) as count
+            with col1:
+                st.metric(
+                    "Total Listings", 
+                    f"{safe_int(summary_data.get('total_listings', 0)):,}"
+                )
+                st.caption(f"📍 {safe_int(summary_data.get('active_zips', 0))} ZIP codes")
+            
+            with col2:
+                avg_dom = safe_float(summary_data.get('avg_dom', 0))
+                st.metric(
+                    "Avg Days on Market", 
+                    f"{avg_dom:.1f} days"
+                )
+                median_dom = safe_float(summary_data.get('median_dom', 0))
+                st.caption(f"Median: {median_dom:.1f} days")
+            
+            with col3:
+                median_rent = safe_float(summary_data.get('median_rent', 0))
+                st.metric(
+                    "Median Rent", 
+                    f"${median_rent:,.0f}"
+                )
+                avg_rent = safe_float(summary_data.get('avg_rent', 0))
+                st.caption(f"Average: ${avg_rent:,.0f}")
+            
+            with col4:
+                for_rent = safe_int(summary_data.get('for_rent_count', 0))
+                for_sale = safe_int(summary_data.get('for_sale_count', 0))
+                st.metric(
+                    "For Rent", 
+                    f"{for_rent:,}"
+                )
+                st.caption(f"For Sale: {for_sale:,}")
+            
+            st.divider()
+            
+            # Distribution charts
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.subheader("Listings by Property Type")
+                type_query = """
+                    SELECT home_type, COUNT(*) as count
                     FROM zillow_listings
-                    WHERE home_status IS NOT NULL
-                    GROUP BY home_status
+                    WHERE home_type IS NOT NULL
+                    GROUP BY home_type
                     ORDER BY count DESC
                 """
-                status_data = database.fetch_data(status_query)
+                type_data = database.fetch_data(type_query)
                 
-                if status_data:
-                    df_status = pd.DataFrame(status_data)
-                    chart = alt.Chart(df_status).mark_arc(innerRadius=50).encode(
-                        theta=alt.Theta('count:Q'),
-                        color=alt.Color('home_status:N', title='Status'),
-                        tooltip=['home_status', 'count']
-                    ).properties(height=400)
+                if type_data:
+                    df_type = pd.DataFrame(type_data)
+                    chart = alt.Chart(df_type).mark_bar().encode(
+                        x=alt.X('count:Q', title='Count'),
+                        y=alt.Y('home_type:N', sort='-x', title='Property Type'),
+                        color=alt.Color('home_type:N', legend=None),
+                        tooltip=['home_type', 'count']
+                    ).properties(height=300)
                     st.altair_chart(chart, use_container_width=True)
                 else:
-                    st.info("No status data available")
-            else:
-                st.warning("No data available in the database")
+                    st.info("No property type data available")
+            
+            with col2:
+                st.subheader("Listings by Bedrooms")
+                bed_query = """
+                    SELECT bedrooms, COUNT(*) as count
+                    FROM zillow_listings
+                    WHERE bedrooms IS NOT NULL
+                    GROUP BY bedrooms
+                    ORDER BY bedrooms
+                """
+                bed_data = database.fetch_data(bed_query)
                 
-        except Exception as e:
-            st.error(f"Error loading market overview: {str(e)}")
-            st.info("Please ensure the database is populated with data")
+                if bed_data:
+                    df_bed = pd.DataFrame(bed_data)
+                    chart = alt.Chart(df_bed).mark_bar().encode(
+                        x=alt.X('bedrooms:O', title='Bedrooms'),
+                        y=alt.Y('count:Q', title='Count'),
+                        color=alt.Color('bedrooms:O', legend=None),
+                        tooltip=['bedrooms', 'count']
+                    ).properties(height=300)
+                    st.altair_chart(chart, use_container_width=True)
+                else:
+                    st.info("No bedroom data available")
+            
+            # Status distribution
+            st.subheader("Listings by Status")
+            status_query = """
+                SELECT home_status, COUNT(*) as count
+                FROM zillow_listings
+                WHERE home_status IS NOT NULL
+                GROUP BY home_status
+                ORDER BY count DESC
+            """
+            status_data = database.fetch_data(status_query)
+            
+            if status_data:
+                df_status = pd.DataFrame(status_data)
+                chart = alt.Chart(df_status).mark_arc(innerRadius=50).encode(
+                    theta=alt.Theta('count:Q'),
+                    color=alt.Color('home_status:N', title='Status'),
+                    tooltip=['home_status', 'count']
+                ).properties(height=400)
+                st.altair_chart(chart, use_container_width=True)
+            else:
+                st.info("No status data available")
+        else:
+            st.warning("No data available in the database")
+            
+    except Exception as e:
+        st.error(f"Error loading market overview: {str(e)}")
+        st.info("Please ensure the database is populated with data")
     
     # ============================================================
     # TAB 2: ZIP CODE ANALYSIS
@@ -344,10 +333,10 @@ if auth.is_authenticated():
                 
         except Exception as e:
             st.error(f"Error loading ZIP code analysis: {str(e)}")
-    
-    # ============================================================
-    # TAB 3: PROPERTY LISTINGS
-    # ============================================================
+        
+        # ============================================================
+        # TAB 3: PROPERTY LISTINGS
+        # ============================================================
     with tab3:
         st.header("Property Listings")
         
@@ -459,10 +448,10 @@ if auth.is_authenticated():
                 
         except Exception as e:
             st.error(f"Error loading property listings: {str(e)}")
-    
-    # ============================================================
-    # TAB 4: METRICS TRENDS
-    # ============================================================
+        
+        # ============================================================
+        # TAB 4: METRICS TRENDS
+        # ============================================================
     with tab4:
         st.header("Metrics Trends")
         
