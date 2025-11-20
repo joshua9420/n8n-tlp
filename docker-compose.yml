@@ -65,6 +65,8 @@ services:
   postgres:
     image: postgres:16
     restart: always
+    networks:
+      - default
     environment:
       - POSTGRES_DB=${POSTGRES_DB:-n8n}
       - POSTGRES_USER=${POSTGRES_USER:-n8n}
@@ -94,6 +96,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - default
     environment:
       # Database connection
       - POSTGRES_DB=${POSTGRES_DB:-n8n}
@@ -133,3 +137,7 @@ volumes:
     external: true
   pg_data:
   qdrant_storage:
+
+networks:
+  default:
+    driver: bridge
