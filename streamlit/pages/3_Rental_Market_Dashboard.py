@@ -44,6 +44,13 @@ with st.sidebar:
     
     st.divider()
     
+    # Refresh button
+    if st.button("🔄 Refresh Data", use_container_width=True, type="primary"):
+        st.cache_data.clear()
+        st.rerun()
+    
+    st.divider()
+    
     # Test database connection
     try:
         if database.test_connection():
