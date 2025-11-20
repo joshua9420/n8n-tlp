@@ -2,9 +2,6 @@
 Configuration settings for the Streamlit Chat App
 """
 import os
-from dotenv import load_dotenv
-
-load_dotenv()  # Load environment variables from .env file
 
 class Settings:
     """Application settings loaded from environment variables"""
